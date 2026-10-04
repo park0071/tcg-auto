@@ -1,0 +1,15 @@
+name: 스레드 토큰 갱신 확인
+on:
+  schedule:
+    - cron: "0 0 1,15 * *"   # 매월 1일, 15일
+  workflow_dispatch: {}
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 장기 토큰 갱신 (유효기간 60일 연장)
+        env:
+          THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
+        run: |
+          curl -fsS "https://graph.threads.net/refresh_access_token?grant_type=th_refresh_token&access_token=${THREADS_TOKEN}" -o /dev/null \
+            && echo "토큰 갱신 성공" || (echo "토큰 갱신 실패: 대표님께 새 토큰 요청 필요" && exit 1)
